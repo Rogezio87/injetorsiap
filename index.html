@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIAP GO Injector Pro — Versão Ultimate</title>
+  <style>
+    :root {
+      --primary: #1a5276;
+      --accent: #1e8449;
+      --accent-hover: #145a32;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --border: #d5dbdb;
+      --text: #2c3e50;
+      --muted: #5d6d7e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e8e8;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #eaeded;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 { margin: 0; font-size: 20px; color: var(--primary); }
+    .engine-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: #eafaf1;
+      color: #1e8449;
+      border: 1px solid #a9dfbf;
+    }
+    .upload-zone {
+      background: #f8fbfd;
+      border: 2px dashed #5dade2;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.2s ease;
+      margin-bottom: 24px;
+    }
+    .upload-zone.dragover { background: #ebf5fb; border-color: var(--primary); }
+    .upload-zone input[type="file"] { margin-top: 12px; font-size: 14px; }
+    .toolbar {
+      display: none;
+      background: #eafaf1;
+      border: 1px solid #a9dfbf;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    select {
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      border: 1px solid #aeb6bf;
+      border-radius: 6px;
+      min-width: 260px;
+      background: #fff;
+    }
+    button {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .btn-copy { background: var(--accent); color: #fff; }
+    .btn-copy:hover { background: var(--accent-hover); }
+    .status-msg { font-size: 13px; font-weight: 600; color: var(--accent); }
+    .workspace { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13.5px; }
+    th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    th { background: var(--primary); color: #fff; font-weight: 600; }
+    tr:nth-child(even) { background: #f8f9f9; }
+    td.num-col { text-align: center; width: 100px; }
+    td input {
+      width: 68px;
+      padding: 5px;
+      text-align: center;
+      border: 1px solid #bdc3c7;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .tag-transf {
+      display: inline-block;
+      background: #fadbd8;
+      color: #922b21;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      font-family: "Fira Code", Consolas, Monaco, monospace;
+      font-size: 12px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #2c3e50;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      resize: vertical;
+    }
+    .hint { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>SIAP GO Injector Pro — Versão Ultimate</h1>
+    <span id="engineStatus" class="engine-badge">Motor Nativo Offline: Pronto</span>
+  </header>
+
+  <div class="upload-zone" id="dropZone">
+    <strong>1. Selecione ou arraste o arquivo do seu Diário Escolar (.xlsx ou .csv)</strong><br>
+    <input type="file" id="fileInput" accept=".xlsx,.csv">
+    <p class="hint">Leitura 100% nativa e offline das tabelas de fechamento (ESTUDANTES, NOTA 1, NOTA 2 e RECUPERAÇÃO).</p>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <label for="turmaSelect"><strong>2. Turma:</strong></label>
+    <select id="turmaSelect"></select>
+    <button type="button" class="btn-copy" id="btnCopy">Copiar Script para Console SIAP</button>
+    <span id="copyStatus" class="status-msg"></span>
+  </div>
+
+  <div class="workspace" id="workspace">
+    <p class="hint" style="margin-bottom: 12px;">
+      Confira as notas extraídas abaixo. Qualquer edição feita nos campos atualiza o script automaticamente.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 48px;">#</th>
+          <th>Estudante</th>
+          <th style="text-align: center; width: 100px;">Nota 1</th>
+          <th style="text-align: center; width: 100px;">Nota 2</th>
+          <th style="text-align: center; width: 115px;">Recuperação</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 8px;">3. Script Gerado (Cole no Console F12 do SIAP GO)</h3>
+    <textarea id="codeOutput" readonly spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const state = { turmas: new Map() };
+
+  const dom = {
+    dropZone: document.getElementById("dropZone"),
+    fileInput: document.getElementById("fileInput"),
+    toolbar: document.getElementById("toolbar"),
+    turmaSelect: document.getElementById("turmaSelect"),
+    btnCopy: document.getElementById("btnCopy"),
+    copyStatus: document.getElementById("copyStatus"),
+    workspace: document.getElementById("workspace"),
+    tableBody: document.getElementById("tableBody"),
+    codeOutput: document.getElementById("codeOutput")
+  };
+
+  // =========================================================================
+  // MOTOR NATIVO OFFLINE DE LEITURA XLSX (ZIP + XML) E CSV
+  // =========================================================================
+  async function inflateRaw(uint8) {
+    const ds = new DecompressionStream("deflate-raw");
+    const writer = ds.writable.getWriter();
+    writer.write(uint8);
+    writer.close();
+    const reader = ds.readable.getReader();
+    const chunks = [];
+    let total = 0;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.length;
+    }
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const c of chunks) {
+      out.set(c, offset);
+      offset += c.length;
+    }
+    return out;
+  }
+
+  async function unzipXlsx(arrayBuffer) {
+    const view = new DataView(arrayBuffer);
+    const bytes = new Uint8Array(arrayBuffer);
+    const decoder = new TextDecoder("utf-8");
+    const files = new Map();
+
+    // Localiza End of Central Directory (EOCD)
+    let eocdOffset = -1;
+    for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) {
+      if (view.getUint32(i, true) === 0x06054b50) {
+        eocdOffset = i;
+        break;
+      }
+    }
+    if (eocdOffset === -1) throw new Error("Arquivo XLSX inválido ou corrompido (EOCD não encontrado).");
+
+    const cdOffset = view.getUint32(eocdOffset + 16, true);
+    const totalEntries = view.getUint16(eocdOffset + 10, true);
+    let ptr = cdOffset;
+
+    for (let e = 0; e < totalEntries; e++) {
+      if (view.getUint32(ptr, true) !== 0x02014b50) break;
+      const compression = view.getUint16(ptr + 10, true);
+      const compSize = view.getUint32(ptr + 20, true);
+      const nameLen = view.getUint16(ptr + 28, true);
+      const extraLen = view.getUint16(ptr + 30, true);
+      const commentLen = view.getUint16(ptr + 32, true);
+      const localHeaderOffset = view.getUint32(ptr + 42, true);
+
+      const fileName = decoder.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+      ptr += 46 + nameLen + extraLen + commentLen;
+
+      if (fileName.endsWith("/")) continue;
+
+      const lNameLen = view.getUint16(localHeaderOffset + 26, true);
+      const lExtraLen = view.getUint16(localHeaderOffset + 28, true);
+      const dataStart = localHeaderOffset + 30 + lNameLen + lExtraLen;
+      const compData = bytes.subarray(dataStart, dataStart + compSize);
+
+      let contentBytes;
+      if (compression === 0) {
+        contentBytes = compData;
+      } else if (compression === 8) {
+        contentBytes = await inflateRaw(compData);
+      } else {
+        continue;
+      }
+      files.set(fileName, decoder.decode(contentBytes));
+    }
+    return files;
+  }
+
+  function colLettersToIndex(letters) {
+    let col = 0;
+    for (let i = 0; i < letters.length; i++) {
+      col = col * 26 + (letters.charCodeAt(i) - 64);
+    }
+    return col - 1;
+  }
+
+  function parseXmlSheet(xmlText, sharedStrings) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, "application/xml");
+    const rowNodes = doc.getElementsByTagName("row");
+    const matrix = [];
+
+    for (let i = 0; i < rowNodes.length; i++) {
+      const rNode = rowNodes[i];
+      const cells = rNode.getElementsByTagName("c");
+      const rowArr = [];
+
+      for (let j = 0; j < cells.length; j++) {
+        const cNode = cells[j];
+        const ref = cNode.getAttribute("r") || "";
+        const lettersMatch = ref.match(/^[A-Z]+/);
+        const colIdx = lettersMatch ? colLettersToIndex(lettersMatch[0]) : j;
+        const type = cNode.getAttribute("t");
+
+        let val = "";
+        if (type === "s") {
+          const vNode = cNode.getElementsByTagName("v")[0];
+          if (vNode) {
+            const idx = parseInt(vNode.textContent, 10);
+            val = sharedStrings[idx] !== undefined ? sharedStrings[idx] : "";
+          }
+        } else if (type === "inlineStr") {
+          const tNodes = cNode.getElementsByTagName("t");
+          for (let k = 0; k < tNodes.length; k++) val += tNodes[k].textContent;
+        } else if (type === "b") {
+          const vNode = cNode.getElementsByTagName("v")[0];
+          val = vNode && vNode.textContent === "1" ? "TRUE" : "FALSE";
+        } else {
+          const vNode = cNode.getElementsByTagName("v")[0];
+          if (vNode) val = vNode.textContent;
+        }
+
+        while (rowArr.length <= colIdx) rowArr.push("");
+        rowArr[colIdx] = val;
+      }
+      matrix.push(rowArr);
+    }
+    return matrix;
+  }
+
+  function parseCsvText(text) {
+    const lines = text.split(/\r?\n/);
+    const sep = (lines[0] && lines[0].split(";").length > lines[0].split(",").length) ? ";" : ",";
+    return lines.map(line => {
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === sep && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    });
+  }
+
+  async function readSpreadsheetNative(file) {
+    const sheets = [];
+    if (file.name.toLowerCase().endsWith(".csv")) {
+      const text = await file.text();
+      sheets.push({ name: file.name, rows: parseCsvText(text) });
+      return sheets;
+    }
+
+    const buffer = await file.arrayBuffer();
+    const zipFiles = await unzipXlsx(buffer);
+
+    // 1. Shared Strings
+    const sharedStrings = [];
+    if (zipFiles.has("xl/sharedStrings.xml")) {
+      const parser = new DOMParser();
+      const ssDoc = parser.parseFromString(zipFiles.get("xl/sharedStrings.xml"), "application/xml");
+      const siNodes = ssDoc.getElementsByTagName("si");
+      for (let i = 0; i < siNodes.length; i++) {
+        const tNodes = siNodes[i].getElementsByTagName("t");
+        let combined = "";
+        for (let j = 0; j < tNodes.length; j++) combined += tNodes[j].textContent;
+        sharedStrings.push(combined);
+      }
+    }
+
+    // 2. Nomes das abas (workbook.xml + rels)
+    const sheetNamesMap = new Map();
+    if (zipFiles.has("xl/workbook.xml") && zipFiles.has("xl/_rels/workbook.xml.rels")) {
+      const parser = new DOMParser();
+      const wbDoc = parser.parseFromString(zipFiles.get("xl/workbook.xml"), "application/xml");
+      const relsDoc = parser.parseFromString(zipFiles.get("xl/_rels/workbook.xml.rels"), "application/xml");
+
+      const idToTarget = new Map();
+      const relNodes = relsDoc.getElementsByTagName("Relationship");
+      for (let i = 0; i < relNodes.length; i++) {
+        const r = relNodes[i];
+        let target = r.getAttribute("Target") || "";
+        if (!target.startsWith("xl/")) target = "xl/" + target.replace(/^\/+/, "");
+        idToTarget.set(r.getAttribute("Id"), target);
+      }
+
+      const sNodes = wbDoc.getElementsByTagName("sheet");
+      for (let i = 0; i < sNodes.length; i++) {
+        const s = sNodes[i];
+        const name = s.getAttribute("name") || ("Aba " + (i + 1));
+        const rId = s.getAttribute("r:id") || s.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        if (rId && idToTarget.has(rId)) {
+          sheetNamesMap.set(idToTarget.get(rId), name);
+        }
+      }
+    }
+
+    // 3. Processa todas as planilhas
+    const worksheetPaths = Array.from(zipFiles.keys())
+      .filter(k => /^xl\/worksheets\/sheet\d+\.xml$/i.test(k))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+    for (const path of worksheetPaths) {
+      const sheetName = sheetNamesMap.get(path) || path.split("/").pop();
+      const rows = parseXmlSheet(zipFiles.get(path), sharedStrings);
+      sheets.push({ name: sheetName, rows: rows });
+    }
+
+    return sheets;
+  }
+
+  // =========================================================================
+  // PARSER DE TURMAS E NOTAS DO DIÁRIO ESCOLAR
+  // =========================================================================
+  function formatGrade(raw, isRecovery) {
+    if (raw === undefined || raw === null) return isRecovery ? "" : "0,0";
+    const str = String(raw).trim().toUpperCase();
+    if (str === "" || str === "NAN" || str === "FALSE") return isRecovery ? "" : "0,0";
+
+    const num = parseFloat(str.replace(",", "."));
+    if (Number.isNaN(num)) return isRecovery ? "" : "0,0";
+    if (isRecovery && num === 0) return "";
+    return num.toFixed(1).replace(".", ",");
+  }
+
+  function findNextNonEmpty(row, startIndex) {
+    for (let i = startIndex + 1; i < row.length; i++) {
+      const val = String(row[i] ?? "").trim();
+      if (val !== "" && !val.toUpperCase().startsWith("TURMA") && !val.toUpperCase().startsWith("Nº")) {
+        return val;
+      }
+    }
+    return "";
+  }
+
+  function extractClasses(sheets) {
+    state.turmas.clear();
+
+    sheets.forEach(function (sheet) {
+      const sheetName = sheet.name;
+      const rows = sheet.rows;
+
+      let currentSerie = "";
+      let currentTurma = "";
+      let colEst = -1;
+      let colN1 = -1;
+      let colN2 = -1;
+      let colRec = -1;
+      let isReadingBlock = false;
+      let bufferAlunos = [];
+
+      function commitBlock() {
+        if (bufferAlunos.length > 0) {
+          const baseName = (currentSerie + " " + currentTurma).trim() || sheetName;
+          const uniqueName = state.turmas.has(baseName) ? (baseName + " [" + sheetName + "]") : baseName;
+          state.turmas.set(uniqueName, bufferAlunos);
+          bufferAlunos = [];
+        }
+      }
+
+      for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        if (!Array.isArray(row)) continue;
+
+        const upperRow = row.map(function (cell) {
+          return String(cell ?? "").trim().toUpperCase();
+        });
+
+        const idxSerie = upperRow.findIndex(function (c) { return c === "SÉRIE:" || c === "SERIE:"; });
+        if (idxSerie !== -1) {
+          const foundSerie = findNextNonEmpty(row, idxSerie);
+          if (foundSerie) currentSerie = foundSerie;
+        }
+
+        const idxTurma = upperRow.findIndex(function (c) { return c === "TURMA:"; });
+        if (idxTurma !== -1) {
+          const foundTurma = findNextNonEmpty(row, idxTurma);
+          if (foundTurma) currentTurma = foundTurma;
+        }
+
+        const idxEst = upperRow.indexOf("ESTUDANTES");
+        const idxN1 = upperRow.indexOf("NOTA 1");
+        const idxN2 = upperRow.indexOf("NOTA 2");
+        const idxRec = upperRow.findIndex(function (c) { return c.startsWith("RECUPERA"); });
+
+        if (idxEst !== -1 && idxN1 !== -1) {
+          commitBlock();
+          colEst = idxEst;
+          colN1 = idxN1;
+          colN2 = idxN2;
+          colRec = idxRec;
+          isReadingBlock = true;
+          continue;
+        }
+
+        if (isReadingBlock) {
+          const rawName = String(row[colEst] ?? "").trim();
+          const upperName = rawName.toUpperCase();
+
+          if (upperName.startsWith("PROFESSOR:") || upperRow.includes("ENSINO MÉDIO")) {
+            commitBlock();
+            isReadingBlock = false;
+            continue;
+          }
+
+          const isValidName = rawName.length > 2 && !/^\d+$/.test(rawName);
+          if (isValidName) {
+            const isTransferred = /transferid[oa]/i.test(rawName);
+            bufferAlunos.push({
+              nome: rawName,
+              n1: isTransferred ? "" : formatGrade(row[colN1], false),
+              n2: isTransferred ? "" : (colN2 !== -1 ? formatGrade(row[colN2], false) : "0,0"),
+              rec: isTransferred ? "" : (colRec !== -1 ? formatGrade(row[colRec], true) : "")
+            });
+          }
+        }
+      }
+      commitBlock();
+    });
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    try {
+      const sheets = await readSpreadsheetNative(file);
+      extractClasses(sheets);
+
+      if (state.turmas.size === 0) {
+        alert("Nenhuma tabela com 'ESTUDANTES', 'NOTA 1' e 'NOTA 2' foi encontrada no arquivo selecionado.");
+        return;
+      }
+
+      dom.turmaSelect.innerHTML = "";
+      state.turmas.forEach(function (alunos, nomeTurma) {
+        const opt = document.createElement("option");
+        opt.value = nomeTurma;
+        opt.textContent = nomeTurma + " (" + alunos.length + " alunos)";
+        dom.turmaSelect.appendChild(opt);
+      });
+
+      dom.toolbar.style.display = "flex";
+      dom.workspace.style.display = "block";
+      renderSelectedTurma();
+    } catch (err) {
+      alert("Erro ao processar o arquivo: " + err.message);
+      console.error(err);
+    }
+  }
+
+  function renderSelectedTurma() {
+    const turmaKey = dom.turmaSelect.value;
+    const alunos = state.turmas.get(turmaKey) || [];
+    dom.tableBody.innerHTML = "";
+    dom.copyStatus.textContent = "";
+
+    alunos.forEach(function (aluno, idx) {
+      const tr = document.createElement("tr");
+
+      const tdNum = document.createElement("td");
+      tdNum.textContent = String(idx + 1);
+      tr.appendChild(tdNum);
+
+      const tdNome = document.createElement("td");
+      const isTransf = /transferid[oa]/i.test(aluno.nome);
+      const cleanName = aluno.nome.replace(/\(transferid[oa]\)/i, "").trim();
+      tdNome.textContent = cleanName;
+
+      if (isTransf) {
+        const badge = document.createElement("span");
+        badge.className = "tag-transf";
+        badge.textContent = "TRANSFERIDO";
+        tdNome.appendChild(badge);
+      }
+      tr.appendChild(tdNome);
+
+      ["n1", "n2", "rec"].forEach(function (field) {
+        const td = document.createElement("td");
+        td.className = "num-col";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = aluno[field];
+        input.addEventListener("input", function () {
+          aluno[field] = input.value.trim();
+          generatePayload();
+        });
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+
+      dom.tableBody.appendChild(tr);
+    });
+
+    generatePayload();
+  }
+
+  // =========================================================================
+  // GERADOR DO SCRIPT CALIBRADO PARA O DOM DO SIAP GO (div.aluno + seeTextField)
+  // =========================================================================
+  function generatePayload() {
+    const turmaKey = dom.turmaSelect.value;
+    const alunos = state.turmas.get(turmaKey) || [];
+
+    const sanitizedList = alunos.map(function (a) {
+      return {
+        nome: a.nome.replace(/\(transferid[oa]\)/i, "").trim(),
+        n1: a.n1,
+        n2: a.n2,
+        rec: a.rec
+      };
+    });
+
+    const payload = [
+      "(function injetarNotasSIAP_Ultimate() {",
+      "  'use strict';",
+      "  const TURMA = " + JSON.stringify(turmaKey) + ";",
+      "  const DADOS = " + JSON.stringify(sanitizedList, null, 2) + ";",
+      "",
+      "  const normalizar = (txt) => {",
+      "    return txt",
+      "      .normalize('NFD')",
+      "      .replace(/[\\u0300-\\u036f]/g, '')",
+      "      .replace(/^\\d+\\.\\s*/, '')",
+      "      .replace(/[^A-Z0-9\\s]/gi, '')",
+      "      .replace(/\\s+/g, ' ')",
+      "      .trim()",
+      "      .toUpperCase();",
+      "  };",
+      "",
+      "  const setNativeValue = (el, val) => {",
+      "    if (!el || el.disabled || el.readOnly) return;",
+      "    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;",
+      "    setter.call(el, val);",
+      "    el.dispatchEvent(new Event('input', { bubbles: true }));",
+      "    el.dispatchEvent(new Event('change', { bubbles: true }));",
+      "    el.dispatchEvent(new Event('blur', { bubbles: true }));",
+      "  };",
+      "",
+      "  // 1. Coleta todos os inputs editáveis da grade (seeTextField)",
+      "  const inputsVisiveis = Array.from(document.querySelectorAll('input.seeTextField')).filter(el => {",
+      "    const r = el.getBoundingClientRect();",
+      "    return r.width > 0 && r.height > 0 && !el.disabled && !el.readOnly;",
+      "  });",
+      "",
+      "  // 2. Agrupa inputs por coluna (X) e ordena de cima para baixo (Y)",
+      "  const mapaColunas = new Map();",
+      "  inputsVisiveis.forEach(inp => {",
+      "    const colX = Math.round(inp.getBoundingClientRect().left / 15) * 15;",
+      "    if (!mapaColunas.has(colX)) mapaColunas.set(colX, []);",
+      "    mapaColunas.get(colX).push(inp);",
+      "  });",
+      "",
+      "  const colunasOrdenadas = Array.from(mapaColunas.entries())",
+      "    .sort((a, b) => a[0] - b[0])",
+      "    .filter(entry => entry[1].length >= 5)",
+      "    .map(entry => entry[1].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top));",
+      "",
+      "  if (colunasOrdenadas.length < 2) {",
+      "    alert('Erro: Colunas de notas não detectadas na tela do SIAP GO.');",
+      "    return;",
+      "  }",
+      "",
+      "  // 3. Seleciona diretamente os elementos div.aluno do SIAP GO",
+      "  let nodosAlunos = Array.from(document.querySelectorAll('div.aluno, .aluno')).filter(el => {",
+      "    return el.getBoundingClientRect().height > 0 && el.innerText.trim().length > 0;",
+      "  });",
+      "",
+      "  if (nodosAlunos.length === 0) {",
+      "    nodosAlunos = Array.from(document.querySelectorAll('div, span, td')).filter(el => {",
+      "      return el.children.length === 0 && /^\\d+\\.\\s+[A-ZÀ-Ú]/.test(el.innerText.trim());",
+      "    });",
+      "  }",
+      "",
+      "  let count = 0;",
+      "  nodosAlunos.forEach((nodo, idxTela) => {",
+      "    const nomeTela = normalizar(nodo.innerText);",
+      "",
+      "    let registro = DADOS.find(item => {",
+      "      const nomePlan = normalizar(item.nome);",
+      "      return nomeTela === nomePlan || nomeTela.includes(nomePlan) || nomePlan.includes(nomeTela);",
+      "    });",
+      "",
+      "    // Fallback seguro por primeiro nome + índice caso haja diferença de grafia",
+      "    if (!registro && nodosAlunos.length === DADOS.length) {",
+      "      const pTela = nomeTela.split(' ')[0];",
+      "      const pPlan = normalizar(DADOS[idxTela].nome).split(' ')[0];",
+      "      if (pTela === pPlan) {",
+      "        registro = DADOS[idxTela];",
+      "      }",
+      "    }",
+      "",
+      "    if (registro) {",
+      "      const yRef = nodo.getBoundingClientRect().top;",
+      "      const buscarNaMesmaLinha = (lista) => lista ? lista.find(inp => Math.abs(inp.getBoundingClientRect().top - yRef) <= 22) : null;",
+      "",
+      "      const campoN1 = buscarNaMesmaLinha(colunasOrdenadas[0]);",
+      "      const campoN2 = buscarNaMesmaLinha(colunasOrdenadas[1]);",
+      "      const campoRec = buscarNaMesmaLinha(colunasOrdenadas[2]);",
+      "",
+      "      if (campoN1 && registro.n1 !== '') setNativeValue(campoN1, registro.n1);",
+      "      if (campoN2 && registro.n2 !== '') setNativeValue(campoN2, registro.n2);",
+      "      if (campoRec && registro.rec !== '') setNativeValue(campoRec, registro.rec);",
+      "      count++;",
+      "    }",
+      "  });",
+      "",
+      "  alert('Concluído! ' + count + ' de ' + DADOS.length + ' estudantes da turma ' + TURMA + ' foram preenchidos.');",
+      "})();"
+    ].join("\n");
+
+    dom.codeOutput.value = payload;
+  }
+
+  dom.fileInput.addEventListener("change", function (e) {
+    if (e.target.files && e.target.files.length > 0) handleFile(e.target.files[0]);
+  });
+
+  dom.dropZone.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    dom.dropZone.classList.add("dragover");
+  });
+
+  dom.dropZone.addEventListener("dragleave", function () {
+    dom.dropZone.classList.remove("dragover");
+  });
+
+  dom.dropZone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dom.dropZone.classList.remove("dragover");
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+  });
+
+  dom.turmaSelect.addEventListener("change", renderSelectedTurma);
+
+  dom.btnCopy.addEventListener("click", function () {
+    generatePayload();
+    dom.codeOutput.select();
+    dom.codeOutput.setSelectionRange(0, 999999);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(dom.codeOutput.value).then(function () {
+        dom.copyStatus.textContent = "Script copiado! Cole (Ctrl+V) no Console F12 do SIAP GO.";
+      });
+    } else {
+      document.execCommand("copy");
+      dom.copyStatus.textContent = "Script copiado! Cole (Ctrl+V) no Console F12 do SIAP GO.";
+    }
+  });
+})();
+</script>
+</body>
+</html>
